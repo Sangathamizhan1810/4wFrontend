@@ -4,6 +4,7 @@ import {Redirect, Link} from 'react-router-dom'
 
 import UserContext from '../../context/UserContext'
 import CartContext from '../../context/CartContext'
+import API_BASE_URL from '../../config/api'
 
 import './index.css'
 
@@ -47,20 +48,24 @@ class LoginForm extends Component {
     event.preventDefault()
     const {username, password} = this.state
     const userDetails = {username, password}
-    const url = 'https://fourwbackend.onrender.com/login'
+    const url = `${API_BASE_URL}/login`
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(userDetails),
     }
 
-    const response = await fetch(url, options)
-    const data = await response.json()
+    try {
+      const response = await fetch(url, options)
+      const data = await response.json()
 
-    if (response.ok) {
-      this.onSubmitSuccess(data.jwt_token, resetCart)
-    } else {
-      this.onSubmitFailure(data.error_msg)
+      if (response.ok) {
+        this.onSubmitSuccess(data.jwt_token, resetCart)
+      } else {
+        this.onSubmitFailure(data.error_msg || 'Login failed. Please try again.')
+      }
+    } catch (error) {
+      this.onSubmitFailure('Unable to connect to server. Please try again later.')
     }
   }
 

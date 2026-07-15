@@ -1,5 +1,6 @@
 import {Component} from 'react'
 import {withRouter, Link} from 'react-router-dom'
+import API_BASE_URL from '../../config/api'
 import './index.css'
 
 class RegisterForm extends Component {
@@ -23,27 +24,31 @@ class RegisterForm extends Component {
     event.preventDefault()
     const {username, password} = this.state
     const userDetails = {username, password}
-    const url = 'https://fourwbackend.onrender.com/register'
+    const url = `${API_BASE_URL}/register`
     const options = {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(userDetails),
     }
 
-    const response = await fetch(url, options)
-    const data = await response.json()
+    try {
+      const response = await fetch(url, options)
+      const data = await response.json()
 
-    if (response.ok) {
-      this.setState({
-        successMsg: '✅ Registered successfully! Redirecting to login...',
-        showError: false,
-        errorMsg: '',
-      })
-      setTimeout(() => {
-        this.props.history.push('/login')
-      }, 1500)
-    } else {
-      this.setState({showError: true, errorMsg: data.error_msg})
+      if (response.ok) {
+        this.setState({
+          successMsg: '✅ Registered successfully! Redirecting to login...',
+          showError: false,
+          errorMsg: '',
+        })
+        setTimeout(() => {
+          this.props.history.push('/login')
+        }, 1500)
+      } else {
+        this.setState({showError: true, errorMsg: data.error_msg || 'Registration failed. Please try again.'})
+      }
+    } catch (error) {
+      this.setState({showError: true, errorMsg: 'Unable to connect to server. Please try again later.'})
     }
   }
 
